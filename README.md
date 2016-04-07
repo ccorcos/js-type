@@ -27,3 +27,5 @@ Maybe.Just(1).map(x => x + 1) // Maybe.Just(2)
 Maybe.Nothing().map(x => x + 1) // Maybe.Nothing()
 
 ```
+
+Its not on NPM or anything yet. And untested. Eventually it will. For now, its just a little experiment. You help is welcome.
