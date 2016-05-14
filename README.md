@@ -1,20 +1,39 @@
 # JavaScript Types
 
-The goal of this project is to bring functional types to JavaScript without having to touch all that nasty `this`, `new` and `prototype` business.
+The goal of this project is to bring types to JavaScript without having to touch all that nasty `this`, `new` and `prototype` business.
 
 It's pretty simple:
+
+The first argument is the name of the type. We'll create a named function so its easy to inpect what type you're dealing with in the console.
+
+The second argument is either an array, an object, or a function. If its an array, it needs to be an array of strings. These will be the property names of the arguments passed into the constructor. If its an object, then we're creating a sum-type, like an Either or a Maybe. If its a function, then its a constructor function that takes a value and returns a plain object who's properties will get assigned to the type.
+
+The third argument is optional and is a plain object of prototype methods where the `this` is the last argument. It creates curried versions of the function on the type constructor along with prototype methods on the type.
+
+## Examples
 
 ```js
 const Point = Type('Point', ['x', 'y'], {
   // this always comes last
-  concat: (a, b) => b.concat(a)
+  add: (a, b) => Point(b.x + a.x, b.y + a.y),
+  subtract: (a, b) => Point(b.x - a.x, b.y - a.y)
 })
 
-Point(1, 1).concat(Point(1, 2)) // => Point(2, 3)
+Point(1, 1).add(Point(1, 2)) // => Point(2, 3)
 Point.add(Point(1, 1), Point(1, 2)) // => Point(2, 3)
 
+Point.equals(Point(1, 1), Point(1, 1)) // => true
+Point(1, 1).equals(Point(1, 1)) // => true
+
+Point(1, 1).toString() // => "Point(1, 1)"
+Point.toString(Point(1, 1)) // => "Point(1, 1)"
+
+Point(1, 2).subtract(Point(1, 1)) // => Point(0, 1)
+subtract11 = Point.subtract(Point(1, 1))
+subtract11(Point(1, 2)) // => Point(0, 1)
+
 const Maybe = Type('Maybe', {
-  Just: ['x'],
+  Just: ['value'],
   Nothing: []
 }, {
   map: {
@@ -23,27 +42,34 @@ const Maybe = Type('Maybe', {
   }
 })
 
-Maybe.Just(1).map(x => x + 1) // Maybe.Just(2)
-Maybe.Nothing().map(x => x + 1) // Maybe.Nothing()
+const add1 = x => x + 1
+Maybe.Just(1).map(add1) // Maybe.Just(2)
+Maybe.map(add1, Maybe.Just(1)) // Maybe.Just(2)
+Maybe.map(add1)(Maybe.Just(1)) // Maybe.Just(2)
 
+Maybe.map(add1, Maybe.Nothing()) // Maybe.Nothing()
+Maybe.map(add1)(Maybe.Nothing()) // Maybe.Nothing()
+Maybe.Nothing().map(add1) // Maybe.Nothing()
+
+const FunkyType = Type('FunkyType', (a,b) => {sum: a+b, diff: a-b})
 ```
 
-Its not on NPM or anything yet. And untested. Eventually it will. For now, its just a little experiment. You help is welcome.
+# Contributing
 
+## To Do
+
+- `.toString` for typed defined with a constructor function
+- curried type constructors
+- key-value constructors for tagged types, e.g. Point({x:1, y:2})
+- build and test some useful data-types
 
 # Development
 
 ```bash
+# global dependencies
 npm install -g xo ava
-```
-
-```bash
+# fixing up linting errors
 xo --fix
+# test
+npm test
 ```
-
-
-
-TODO:
-- curried type constructors?
-- named key-value constructors, e.g. {x:1, y:2}
-- build some useful data types
