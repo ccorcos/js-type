@@ -1,5 +1,7 @@
 # JavaScript Types
 
+![travis-ci](https://travis-ci.org/ccorcos/js-type.svg?branch=master)
+
 The goal of this project is to bring types to JavaScript without having to touch all that nasty `this`, `new` and `prototype` business.
 
 It's pretty simple:
