@@ -1,8 +1,9 @@
+const Type = require('../type')
 // can't do it without a custom constructor to wrap the Failure value in an Array
 
 const Validation = Type('Validation', {
-  Success: (x) => {x}
-  Failure: (x) => {x:[x]}
+  Success: (x) => ({x}),
+  Failure: (x) => ({x: [x]})
 }, {
   // map: {
   //   Success: (f, x) => Validation.Success(f(x.value)),
@@ -25,3 +26,5 @@ const Validation = Type('Validation', {
   //   Failure: (fn, x) => x,
   // },
 })
+
+module.exports = Validation

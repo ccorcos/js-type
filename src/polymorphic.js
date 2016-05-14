@@ -1,12 +1,14 @@
+'use strict'
+
 // polymorphic functions are functions that accept different
 // types of arguments.
-//
 // poly([[isValidArg],
 //         function(a){},
 //       [another, valid, arg],
 //         fuction(a,b,c){}])
 //
-const poly = list => (...args) => {
+const poly = list => function () {
+  const args = Array.from(arguments)
   for (let i = 0; i < list.length; i += 2) {
     if (args.length === list[i].length) {
       let eq = true
@@ -14,11 +16,11 @@ const poly = list => (...args) => {
         eq = eq && list[i][j](args[j])
       }
       if (eq) {
-        return list[i+1](...args)
+        return list[i + 1](...args)
       }
     }
   }
   throw new Error('Unknown arguments for polymorphic function.')
 }
 
-export default poly
+module.exports = poly

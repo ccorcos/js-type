@@ -1,8 +1,12 @@
-import R from 'ramda'
-import is from 'is-js'
-import poly from './polymorphic'
-import proto from './prototype'
-import nfn from './named-function'
+'use strict'
+
+const is = require('is-js')
+const all = require('ramda/src/all')
+const equals = require('ramda/src/equals')
+const curryN = require('ramda/src/curryN')
+const poly = require('./polymorphic')
+const proto = require('./prototype')
+const nfn = require('./named-function')
 
 // automagically create .equals and .toString
 // ```js
@@ -15,46 +19,59 @@ import nfn from './named-function'
 // ```
 const defaultProto = (type) => {
   proto(type, {
-    equals: (a, b) => R.all(k => R.equals(a[k], b[k]), type._fields),
-    toString: (x) => `${name} (${type._fields.map((y) => x[y].toString()).join(', ')})`,
+    equals: (a, b) => a._name === b._name && all(k => equals(a[k], b[k]), type._fields),
+    toString: (x) => `${type._name}(${type._fields.map((y) => x[y].toString()).join(', ')})`
   })
 }
 
-// the following makes `x instanceof ParentType = true`
+// the following makes `type instanceof parent === true`
 const inherit = (parent, type) => {
   const prev = type.prototype
   type.prototype = Object.create(parent.prototype)
   Object.assign(type.prototype, prev)
 }
 
+// Parse a function's argument names.
+// ```js
+// fnArgNames((a,b,c) => a + b + c)
+// > ['a', 'b', 'c']
+// ```
+const fnArgNames = (fn) => {
+  const s = fn.toString()
+  const x1 = s.indexOf('(')
+  const x2 = s.indexOf(')')
+  const args = s.substr(x1 + 1, x2 - x1 - 1).split(',')
+  return args
+}
+
+// Construct a type given a name and a function to generate properties
 // ```js
 // const Error = construct('Error', (x) => {x: [x]})
 // const e = Error(10)
 // e.x[0]
-// > 0
+// > 10
 // ```
 const construct = (name, fn) => {
-  const s = fn.toString()
-  const x1 = s.indexOf('(')
-  const x2 = s.indexOf(')')
-  const input = s.substr(x1+1, x2-x1-1).split(',')
+  const argNames = fnArgNames(fn)
   // create a named function -- useful for debugging in console
-  const type = nfn(name, input, function(...args) {
+  const type = nfn(name, argNames, function () {
+    const args = Array.from(arguments)
     // don't require new for constructing because that's lame
     if (!(this instanceof type)) {
-      return new type(...args)
+      return new (Function.prototype.bind.apply(type, [null].concat(args)))
     }
-    const props = fn(...args)
+    const props = fn.apply(null, args)
+    type._name = name
+    this._name = name
     type._fields = Object.keys(props)
     Object.assign(this, props)
-    return this
   })
+  // automatically create .toString and .equals
   defaultProto(type)
   return type
 }
 
-// create a simple type with a name, some properties, and
-// optionally a parent type to inherit from.
+// Construct a simple type with a name and some named properties.
 //
 // ```js
 // const Point2D = tagged('Point2D', ['x', 'y'])
@@ -66,29 +83,30 @@ const construct = (name, fn) => {
 // ```
 const tagged = (name, fields) => {
   // create a named function -- useful for debugging in console
-  const type = nfn(name, fields, function(...args) {
+  const type = nfn(name, fields, function () {
+    const args = Array.from(arguments)
     // don't require new for constructing because that's lame
     if (!(this instanceof type)) {
-      return new type(...args)
+      return new (Function.prototype.bind.apply(type, [null].concat(args)))
     }
     // check you get the right number of args like it the wild west
     if (args.length !== fields.length) {
-      throw new TypeError(`Expected ${fields.length} arguments, got ${args.length}`)
+      throw new TypeError(`Expected ${fields.length} arguments, got ${args.length}.`)
     }
     // assign args to fields
     for (let i = 0; i < fields.length; i++) {
       this[fields[i]] = args[i]
     }
-    // this may be useful to have
+    type._name = name
+    this._name = name
     type._fields = fields
-    return this
   })
+  // automatically create .toString and .equals
   defaultProto(type)
   return type
 }
 
 // disjointed types / union types / sum types
-//
 // ```js
 // const Either = taggedSum('Maybe', {Left:['x'], Right:['x']})
 // const l = Either.Left(1)
@@ -108,7 +126,7 @@ const tagged = (name, fields) => {
 // ```
 const taggedSum = (name, obj) => {
   // also a named function
-  const type = nfn(name, [], function() {
+  const type = nfn(name, [], function () {
     throw new TypeError(`${name} was called instead of one of its properties.`)
   })
   // create each subtype
@@ -124,15 +142,19 @@ const taggedSum = (name, obj) => {
   type._subtypes = Object.keys(obj)
   // use this method to delegate to its children types
   type.dispatch = (fname, len) => {
-    type[fname] = R.curryN(len, (...args) => {
-      return args[len-1][fname](...args.slice(0, len-1))
+    type[fname] = curryN(len, function () {
+      const args = Array.from(arguments)
+      return args[len - 1][fname].apply(args[len - 1], args.slice(0, len - 1))
     })
   }
   type.dispatch('equals', 2)
+  type.dispatch('toString', 1)
   return type
 }
 
-const withProto = (fn) => (...args) => {
+// we can construct a type with prototype methods
+const withProto = (fn) => function () {
+  const args = Array.from(arguments)
   const t = fn.apply(null, args.slice(0, 2))
   proto(t, args[2])
   return t
@@ -144,10 +166,10 @@ const Type = poly([
   [is.string, is.hash], taggedSum,
   [is.string, is.array, is.hash], withProto(tagged),
   [is.string, is.fn, is.hash], withProto(construct),
-  [is.string, is.hash, is.hash], withProto(taggedSum),
+  [is.string, is.hash, is.hash], withProto(taggedSum)
 ])
 
-export default Type
+module.exports = Type
 
 // ```js
 // // Fantasy Land

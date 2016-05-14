@@ -1,13 +1,24 @@
-import is from 'is-js'
-import R from 'ramda'
-import poly from './polymorphic'
+'use strict'
 
-const objOf = fn => x => is.hash(x) && R.all(fn, R.values(x))
-// const objHas = fn => x => is.hash(x) && R.any(fn, R.values(x))
+const is = require('is-js')
+const all = require('ramda/src/all')
+// const any = require('ramda/src/any')
+const curry = require('ramda/src/curry')
+const values = require('ramda/src/values')
+const pipe = require('ramda/src/pipe')
+const map = require('ramda/src/map')
+const prop = require('ramda/src/prop')
+const keys = require('ramda/src/keys')
+const flatten = require('ramda/src/flatten')
+const uniq = require('ramda/src/uniq')
+const poly = require('./polymorphic')
+
+// some helpful type checkers
+const objOf = fn => x => is.hash(x) && all(fn, values(x))
+// const objHas = fn => x => is.hash(x) && any(fn, values(x))
 
 // define prototype for an object along with curried
 // data-last functions on the type itself
-//
 // ```js
 // const F = Type('F', ['x'])
 // proto(F, {map: (f, x) => F(f(x.x))})
@@ -40,32 +51,28 @@ const objOf = fn => x => is.hash(x) && R.all(fn, R.values(x))
 // ```
 const proto = poly([
   [is.object, objOf(is.fn)],
-    (type, fns) => {
-      Object.keys(fns).forEach(fname => {
-        const fn = fns[fname]
+  (type, fns) => {
+    Object.keys(fns).forEach(fname => {
+      const fn = fns[fname]
         // data comes last
-        type[fname] = R.curry(fn)
-        type.prototype[fname] = function(...args) {
-          return fn(...args.concat([this]))
-        }
-      })
-    },
+      type[fname] = curry(fn)
+      type.prototype[fname] = function () {
+        const args = Array.from(arguments)
+        return fn.apply(null, args.concat([this]))
+      }
+    })
+  },
   [is.object, objOf(objOf(is.fn))],
-    (type, fns) => {
-      const subtypes = R.pipe(
-        R.map(R.keys),
-        R.values,
-        R.flatten,
-        R.uniq
-      )(fns)
-      subtypes.forEach(subtype => {
-        proto(type[subtype], R.map(R.prop(subtype), fns))
-      })
-      Object.keys(fns).forEach(fname => {
-        const fnlen = fns[fname][subtypes[0]].length
-        type.dispatch(fname, fnlen)
-      })
-    },
+  (type, fns) => {
+    const subtypes = pipe(map(keys), values, flatten, uniq)(fns)
+    subtypes.forEach(subtype => {
+      proto(type[subtype], map(prop(subtype), fns))
+    })
+    Object.keys(fns).forEach(fname => {
+      const fnlen = fns[fname][subtypes[0]].length
+      type.dispatch(fname, fnlen)
+    })
+  }
 ])
 
-export default proto
+module.exports = proto

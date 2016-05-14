@@ -29,3 +29,21 @@ Maybe.Nothing().map(x => x + 1) // Maybe.Nothing()
 ```
 
 Its not on NPM or anything yet. And untested. Eventually it will. For now, its just a little experiment. You help is welcome.
+
+
+# Development
+
+```bash
+npm install -g xo ava
+```
+
+```bash
+xo --fix
+```
+
+
+
+TODO:
+- curried type constructors?
+- named key-value constructors, e.g. {x:1, y:2}
+- build some useful data types
