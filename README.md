@@ -6,7 +6,7 @@ The goal of this project is to bring types to JavaScript without having to touch
 
 It's pretty simple:
 
-The first argument is the name of the type. We'll create a named function so its easy to inpect what type you're dealing with in the console.
+The first argument is the name of the type. We'll create a named function so its easy to inspect what type you're dealing with in the console.
 
 The second argument is either an array, an object, or a function. If its an array, it needs to be an array of strings. These will be the property names of the arguments passed into the constructor. If its an object, then we're creating a sum-type, like an Either or a Maybe. If its a function, then its a constructor function that takes a value and returns a plain object who's properties will get assigned to the type.
 
@@ -27,8 +27,8 @@ Point.add(Point(1, 1), Point(1, 2)) // => Point(2, 3)
 Point.equals(Point(1, 1), Point(1, 1)) // => true
 Point(1, 1).equals(Point(1, 1)) // => true
 
-Point(1, 1).toString() // => "Point(1, 1)"
-Point.toString(Point(1, 1)) // => "Point(1, 1)"
+Point(1, 1).inspect() // => "Point(1, 1)"
+Point.inspect(Point(1, 1)) // => "Point(1, 1)"
 
 Point(1, 2).subtract(Point(1, 1)) // => Point(0, 1)
 subtract11 = Point.subtract(Point(1, 1))
@@ -60,7 +60,7 @@ const FunkyType = Type('FunkyType', (a,b) => {sum: a+b, diff: a-b})
 
 ## To Do
 
-- `.toString` for typed defined with a constructor function
+- `.inspect` for types defined with an anonymous constructor function
 - curried type constructors
 - key-value constructors for tagged types, e.g. Point({x:1, y:2})
 - build and test some useful data-types

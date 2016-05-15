@@ -3,8 +3,6 @@
 const test = require('ava')
 const Type = require('../src/type')
 
-const stringify = fn => Function.prototype.toString.apply(fn)
-
 test('tagged', t => {
   const Point2D = Type('Point2D', ['x', 'y'])
   const p = Point2D(1, 2)
@@ -15,16 +13,16 @@ test('tagged', t => {
   // equals
   t.is(p.equals(Point2D(1, 2)), true)
   t.is(p.equals(Point2D(1, 3)), false)
-  // toString
-  t.is(p.toString(), 'Point2D(1, 2)')
+  // inspect
+  t.is(p.inspect(), 'Point2D(1, 2)')
   // dispatch prototype methods
   t.is(Point2D.equals(Point2D(1, 2), p), true)
   t.is(Point2D.equals(Point2D(1, 3), p), false)
-  t.is(Point2D.toString(p), 'Point2D(1, 2)')
+  t.is(Point2D.inspect(p), 'Point2D(1, 2)')
   // dispatched methods are curried
   t.is(Point2D.equals(Point2D(1, 2))(p), true)
   // named arguments
-  t.is(stringify(Point2D).substr(0, 22), 'function Point2D(x,y){')
+  t.is(Point2D.toString().substr(0, 22), 'function Point2D(x,y){')
   // _fields property
   t.deepEqual(Point2D._fields, ['x', 'y'])
 })
@@ -38,16 +36,16 @@ test('construct', t => {
   // equals
   t.is(x.equals(Xs(10)), true)
   t.is(x.equals(Xs(11)), false)
-  // toString
-  t.is(x.toString(), 'Xs(10)')
+  // inspect
+  t.is(x.inspect(), 'Xs(10)')
   // dispatch prototype methods
   t.is(Xs.equals(Xs(10), x), true)
   t.is(Xs.equals(Xs(11), x), false)
-  t.is(Xs.toString(x), 'Xs(10)')
+  t.is(Xs.inspect(x), 'Xs(10)')
   // dispatched methods are curried
   t.is(Xs.equals(Xs(10))(x), true)
   // named arguments
-  t.is(stringify(Xs).substr(0, 15), 'function Xs(x){')
+  t.is(Xs.toString().substr(0, 15), 'function Xs(x){')
   // _fields property
   t.deepEqual(Xs._fields, ['x'])
 })
@@ -72,9 +70,9 @@ test('taggedSum', t => {
   t.is(r.equals(Either.Right(1)), false)
   t.is(l.equals(Either.Right(1)), false)
   t.is(r.equals(Either.Left(2)), false)
-  // toString
-  t.is(l.toString(), 'Either_Left(1)')
-  t.is(r.toString(), 'Either_Right(2)')
+  // inspect
+  t.is(l.inspect(), 'Either_Left(1)')
+  t.is(r.inspect(), 'Either_Right(2)')
   // dispatch prototype methods
   t.is(Either.equals(Either.Left(1), l), true)
   t.is(Either.equals(Either.Right(2), r), true)
@@ -82,13 +80,13 @@ test('taggedSum', t => {
   t.is(Either.equals(Either.Right(1), r), false)
   t.is(Either.equals(Either.Right(1), l), false)
   t.is(Either.equals(Either.Left(2), r), false)
-  t.is(Either.toString(l), 'Either_Left(1)')
-  t.is(Either.toString(r), 'Either_Right(2)')
+  t.is(Either.inspect(l), 'Either_Left(1)')
+  t.is(Either.inspect(r), 'Either_Right(2)')
   // dispatched methods are curried
   t.is(Either.equals(Either.Left(1))(l), true)
   // named arguments
-  t.is(stringify(Either.Left).substr(0, 24), 'function Either_Left(x){')
-  t.is(stringify(Either.Right).substr(0, 25), 'function Either_Right(x){')
+  t.is(Either.Left.toString().substr(0, 24), 'function Either_Left(x){')
+  t.is(Either.Right.toString().substr(0, 25), 'function Either_Right(x){')
   // _fields property
   t.deepEqual(Either.Left._fields, ['x'])
   t.deepEqual(Either.Right._fields, ['x'])
