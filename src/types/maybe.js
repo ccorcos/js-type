@@ -1,3 +1,5 @@
+'use strict'
+
 const Type = require('../type')
 
 const Maybe = Type('Maybe', {
