@@ -13,12 +13,9 @@ test('tagged', t => {
   // equals
   t.is(p.equals(Point2D(1, 2)), true)
   t.is(p.equals(Point2D(1, 3)), false)
-  // inspect
-  t.is(p.inspect(), 'Point2D(1, 2)')
   // dispatch prototype methods
   t.is(Point2D.equals(Point2D(1, 2), p), true)
   t.is(Point2D.equals(Point2D(1, 3), p), false)
-  t.is(Point2D.inspect(p), 'Point2D(1, 2)')
   // dispatched methods are curried
   t.is(Point2D.equals(Point2D(1, 2))(p), true)
   // named arguments
@@ -36,12 +33,9 @@ test('construct', t => {
   // equals
   t.is(x.equals(Xs(10)), true)
   t.is(x.equals(Xs(11)), false)
-  // inspect
-  t.is(x.inspect(), 'Xs(10)')
   // dispatch prototype methods
   t.is(Xs.equals(Xs(10), x), true)
   t.is(Xs.equals(Xs(11), x), false)
-  t.is(Xs.inspect(x), 'Xs(10)')
   // dispatched methods are curried
   t.is(Xs.equals(Xs(10))(x), true)
   // named arguments
@@ -70,9 +64,6 @@ test('taggedSum', t => {
   t.is(r.equals(Either.Right(1)), false)
   t.is(l.equals(Either.Right(1)), false)
   t.is(r.equals(Either.Left(2)), false)
-  // inspect
-  t.is(l.inspect(), 'Either_Left(1)')
-  t.is(r.inspect(), 'Either_Right(2)')
   // dispatch prototype methods
   t.is(Either.equals(Either.Left(1), l), true)
   t.is(Either.equals(Either.Right(2), r), true)
@@ -80,8 +71,6 @@ test('taggedSum', t => {
   t.is(Either.equals(Either.Right(1), r), false)
   t.is(Either.equals(Either.Right(1), l), false)
   t.is(Either.equals(Either.Left(2), r), false)
-  t.is(Either.inspect(l), 'Either_Left(1)')
-  t.is(Either.inspect(r), 'Either_Right(2)')
   // dispatched methods are curried
   t.is(Either.equals(Either.Left(1))(l), true)
   // named arguments

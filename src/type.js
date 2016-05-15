@@ -8,19 +8,16 @@ const poly = require('./polymorphic')
 const proto = require('./prototype')
 const nfn = require('./named-function')
 
-// automagically create .equals and .inspect
+// automagically create .equals
 // ```js
 // p.equals(Point2D(1, 2))
 // > true
 // p.equals(Point2D(2, 2))
 // > false
-// p.inspect()
-// > "Point(1, 2)"
 // ```
 const defaultProto = (type) => {
   proto(type, {
-    equals: (a, b) => a._name === b._name && all(k => equals(a[k], b[k]), type._fields),
-    inspect: (x) => `${type._name}(${type._fields.map((y) => x[y].toString()).join(', ')})`
+    equals: (a, b) => a._name === b._name && all(k => equals(a[k], b[k]), type._fields)
   })
 }
 
@@ -62,11 +59,12 @@ const construct = (name, fn) => {
     }
     const props = fn.apply(null, args)
     type._name = name
-    this._name = name
     type._fields = Object.keys(props)
+    type.prototype._name = type._name
+    type.prototype._fields = type._fields
     Object.assign(this, props)
   })
-  // automatically create .inspect and .equals
+  // automatically create .equals
   defaultProto(type)
   return type
 }
@@ -98,10 +96,11 @@ const tagged = (name, fields) => {
       this[fields[i]] = args[i]
     }
     type._name = name
-    this._name = name
     type._fields = fields
+    type.prototype._name = type._name
+    type.prototype._fields = type._fields
   })
-  // automatically create .inspect and .equals
+  // automatically create .equals
   defaultProto(type)
   return type
 }
@@ -111,8 +110,6 @@ const tagged = (name, fields) => {
 // const Either = taggedSum('Maybe', {Left:['x'], Right:['x']})
 // const l = Either.Left(1)
 // const r = Either.Right(2)
-// l.inspect()
-// > "Maybe_Left(1)"
 // l instanceof Maybe
 // > true
 // l instanceof Maybe.Left
@@ -148,7 +145,6 @@ const taggedSum = (name, obj) => {
     })
   }
   type.dispatch('equals', 2)
-  type.dispatch('inspect', 1)
   return type
 }
 

@@ -27,9 +27,6 @@ Point.add(Point(1, 1), Point(1, 2)) // => Point(2, 3)
 Point.equals(Point(1, 1), Point(1, 1)) // => true
 Point(1, 1).equals(Point(1, 1)) // => true
 
-Point(1, 1).inspect() // => "Point(1, 1)"
-Point.inspect(Point(1, 1)) // => "Point(1, 1)"
-
 Point(1, 2).subtract(Point(1, 1)) // => Point(0, 1)
 subtract11 = Point.subtract(Point(1, 1))
 subtract11(Point(1, 2)) // => Point(0, 1)
@@ -60,7 +57,6 @@ const FunkyType = Type('FunkyType', (a,b) => {sum: a+b, diff: a-b})
 
 ## To Do
 
-- `.inspect` for types defined with an anonymous constructor function
 - curried type constructors
 - key-value constructors for tagged types, e.g. Point({x:1, y:2})
 - build and test some useful data-types
