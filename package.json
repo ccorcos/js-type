@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "JavaScript Types",
   "license": "MIT",
-  "repository": "github.com/ccorcos/js-type",
+  "repository": "https://github.com/ccorcos/js-type",
   "author": {
     "name": "Chet Corcos",
     "email": "ccorcos@gmail.com",
