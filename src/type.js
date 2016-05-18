@@ -17,7 +17,7 @@ const nfn = require('./named-function')
 // ```
 const defaultProto = (type) => {
   proto(type, {
-    equals: (a, b) => a._name === b._name && all(k => equals(a[k], b[k]), type._fields)
+    equals: (a, b) => a._name === b._name && all(k => equals(a[k], b[k]), type._fields),
   })
 }
 
@@ -162,7 +162,7 @@ const Type = poly([
   [is.string, is.hash], taggedSum,
   [is.string, is.array, is.hash], withProto(tagged),
   [is.string, is.fn, is.hash], withProto(construct),
-  [is.string, is.hash, is.hash], withProto(taggedSum)
+  [is.string, is.hash, is.hash], withProto(taggedSum),
 ])
 
 module.exports = Type

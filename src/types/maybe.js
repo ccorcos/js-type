@@ -4,28 +4,28 @@ const Type = require('../type')
 
 const Maybe = Type('Maybe', {
   Just: ['value'],
-  Nothing: []
+  Nothing: [],
 }, {
   map: {
     Just: (f, x) => Maybe.Just(f(x.value)),
-    Nothing: (f, x) => x
+    Nothing: (f, x) => x,
   },
   ap: {
     Just: (m, mfn) => m instanceof Maybe.Just ? Maybe.Just(mfn.value(m.value)) : m,
-    Nothing: (m, mfn) => mfn
+    Nothing: (m, mfn) => mfn,
   },
   concat: {
     Just: (a, b) => a instanceof Maybe.Just ? Maybe.Just(b.value.concat(a.value)) : a,
-    Nothing: (a, b) => b
+    Nothing: (a, b) => b,
   },
   sequence: {
     Just: (m_of, x) => Maybe.Just(m_of(x.value)),
-    Nothing: (m_of, x) => x
+    Nothing: (m_of, x) => x,
   },
   chain: {
     Just: (fn, x) => fn(x.value),
-    Nothing: (fn, x) => x
-  }
+    Nothing: (fn, x) => x,
+  },
 })
 
 module.exports = Maybe

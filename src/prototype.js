@@ -72,7 +72,7 @@ const proto = poly([
       const fnlen = fns[fname][subtypes[0]].length
       type.dispatch(fname, fnlen)
     })
-  }
+  },
 ])
 
 module.exports = proto

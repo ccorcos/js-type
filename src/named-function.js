@@ -19,7 +19,7 @@ const NF = poly([
   (name, args, fn) =>
     new Function('fn',
       `return function ${purify(name)}(${args.toString()}){return fn.apply(this,arguments)}`
-    )(fn)
+    )(fn),
 ])
 
 module.exports = NF

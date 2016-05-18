@@ -86,7 +86,7 @@ test('withProto', t => {
 
   const Point2D = Type('Point2D', ['x', 'y'], {
     add: (a, b) => Point2D(a.x + b.x, a.y + b.y),
-    subtract: (a, b) => Point2D(b.x - a.x, b.y - a.y)
+    subtract: (a, b) => Point2D(b.x - a.x, b.y - a.y),
   })
   const p1 = Point2D(1, 2)
   const p2 = Point2D(1, 1)
@@ -98,7 +98,7 @@ test('withProto', t => {
   t.true(subtractP1(p2).equals(Point2D(0, -1)))
 
   const Xs = Type('Xs', (x) => ({x: [x]}), {
-    map: (fn, xs) => Xs(fn(xs.x[0]))
+    map: (fn, xs) => Xs(fn(xs.x[0])),
   })
   const x = Xs(10)
   t.is(x.map(add1).equals(Xs(11)), true)
@@ -108,12 +108,12 @@ test('withProto', t => {
   const Either = Type('Either', {Left: ['x'], Right: ['x']}, {
     map: {
       Right: (f, x) => Either.Right(f(x.x)),
-      Left: (f, x) => x
+      Left: (f, x) => x,
     },
     ap: {
       Right: (m, mfn) => m instanceof Either.Right ? Either.Right(mfn.x(m.x)) : m,
-      Left: (m, mfn) => mfn
-    }
+      Left: (m, mfn) => mfn,
+    },
   })
   const l = Either.Left(1)
   const r = Either.Right(2)
